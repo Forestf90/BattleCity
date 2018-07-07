@@ -14,16 +14,19 @@ import javax.swing.JPanel;
 import Battlecity.gracz;
 
 import java.util.Scanner;
+import java.util.ArrayList;
 
 public class mapa  extends JPanel {
 	
 	public gracz jeden;
 	public Rectangle[] sektor;
 	public int[] sektor_id;
+	
 	BufferedImage[] sciany;
 	BufferedImage ikony;
 	//BufferedImage[] pociski;
 	//Rectangle pocisk;
+	ArrayList<Rectangle> wyburzony = new ArrayList<Rectangle>();
 	
 	
 	public mapa() {
@@ -53,7 +56,13 @@ public class mapa  extends JPanel {
 		BufferedImage temp = ((gracz) jeden).rysuj();
 		g.drawImage(temp,((gracz) jeden).pozX ,((gracz) jeden).pozY , null);
 		
+		for(Rectangle s : wyburzony) {
+			g.setColor(Color.BLACK);
+			g.fillRect(s.x , s.y ,s.height , s.width);
+		}
+		
 		if(jeden.at !=null) {
+			g.setColor(Color.GRAY);
 			g.fillRect(jeden.at.poz_X, jeden.at.poz_Y, 2,2);
 			jeden.at.lot();
 			trafienie(jeden.at.poz_X , jeden.at.poz_Y);
@@ -130,16 +139,48 @@ public class mapa  extends JPanel {
 	
 	public boolean przejazd_lewo() {
 		
+		boolean temp=true;
+		
+		for(int j=0 ; j<=16 ; j++) {
+					
+				for(Rectangle r : wyburzony) {
+					if(!r.contains((jeden.pozX-2), (jeden.pozY)+j)) {
+						temp =false;
+						break;
+						
+					}
+					
+						//else if(r== wyburzony.get(wyburzony.size() -1))return false;
+				}
+				if(temp)return true;
+			}
+		
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<=16 ; j++) {
-				if(sektor[i].contains((jeden.pozX)-2, (jeden.pozY+j))) return false;
+				if(sektor[i].contains((jeden.pozX-2), (jeden.pozY)+j)) return false;
 				
 			}
 		}
+		
+		
 		return true;
 	}
 	
 	public boolean przejazd_gora() {
+		boolean temp=true;
+		
+		for(int j=0 ; j<=16 ; j++) {
+					
+				for(Rectangle r : wyburzony) {
+					if(!r.contains((jeden.pozX+j), (jeden.pozY)-2)) {
+						temp =false;
+						break;
+					}
+					
+						//else if(r== wyburzony.get(wyburzony.size() -1))return false;
+				}
+				if(temp)return true;
+			}
 		
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<=16 ; j++) {
@@ -147,21 +188,57 @@ public class mapa  extends JPanel {
 				
 			}
 		}
+		
 		return true;
 	}
 		
 		public boolean przejazd_prawo() {
+			boolean temp=true;
+				
+			for(int j=0 ; j<=16 ; j++) {
+						
+					for(Rectangle r : wyburzony) {
+						if(!r.contains((jeden.pozX+2+16), (jeden.pozY)+j)) {
+							temp =false;
+							break;
+							
+						}
+						
+							//else if(r== wyburzony.get(wyburzony.size() -1))return false;
+					}
+					if(temp)return true;
+				}
 			
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<=16 ; j++) {
-					if(sektor[i].contains((jeden.pozX)+2+16, (jeden.pozY+j))) return false;
+					if(sektor[i].contains((jeden.pozX+2+16), (jeden.pozY)+j)) return false;
 					
 				}
 			}
+			
+			
 			return true;
 		}
 		
+		
+		
 		public boolean przejazd_dol() {
+			
+			boolean temp=true;
+			
+			for(int j=0 ; j<=16 ; j++) {
+						
+					for(Rectangle r : wyburzony) {
+						if(!r.contains((jeden.pozX+j), (jeden.pozY)+2+16)) {
+							temp =false;
+							break;
+							
+						}
+						
+							//else if(r== wyburzony.get(wyburzony.size() -1))return false;
+					}
+					if(temp)return true;
+				}
 			
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<=16 ; j++) {
@@ -169,8 +246,7 @@ public class mapa  extends JPanel {
 					
 				}
 			}
-		
-		
+
 		return true;
 	}
 		
@@ -187,13 +263,38 @@ public class mapa  extends JPanel {
 			
 			for(int i=0 ; i<sektor.length ;i++) {
 					if(sektor[i].contains(x ,y)) {
+						boolean temp=false;
+						for(Rectangle r : wyburzony) {
+							if(r.contains(x ,y)) {
+								temp=true;
+								break;
+							}
+							//else if(r== wyburzony.get(wyburzony.size() -1))return false;
+						}
+						if(!temp) {
 						jeden.at =null;
-						sektor[i].width -=4;
+						//sektor[i].width -=4;
+						wyburz(x ,y);
+						}
 					}
 					
 				
 			}
 
 		}
-
+		
+		public void wyburz(int rx , int ry) {
+			int x= rx - (rx%4);
+			int y = ry - (ry%4);
+			
+			if(jeden.strona%2==0) { //poziom
+				Rectangle temp = new Rectangle(x , y ,4 ,16);
+				wyburzony.add(temp);
+		}
+			else { //pion
+				Rectangle temp = new Rectangle(x , y ,16 ,4);
+				wyburzony.add(temp);
+				
+			}
+		}
 }

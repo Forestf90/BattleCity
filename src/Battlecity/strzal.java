@@ -50,8 +50,11 @@ public class strzal {
 	}
 	
 	public void lot() {
-	poz_X+= zmiana_X;
-	poz_Y += zmiana_Y;
+		poz_X+= zmiana_X;
+		poz_Y += zmiana_Y;
 	}
 	
+
+
+
 }
