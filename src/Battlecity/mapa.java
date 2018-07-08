@@ -20,21 +20,25 @@ public class mapa  extends JPanel {
 	
 	public gracz jeden;
 	public Rectangle[] sektor;
-	//public int[] sektor_id;
+	public int[] sektor_id;
 	
 	BufferedImage[] sciany;
+	BufferedImage[] wybuchy;
 	BufferedImage ikony;
 	public BufferedImage[] sciana_sektora;
 	//BufferedImage[] pociski;
 	//Rectangle pocisk;
 	//ArrayList<Rectangle> wyburzony = new ArrayList<Rectangle>();
+	ArrayList<wybuch> trafienia;
 	
 	
 	public mapa() {
 		jeden = new gracz();
 		setPreferredSize(new Dimension( 240, 208 ));
 		//pociski= new BufferedImage[4];
-		sciany= new BufferedImage[4];
+		sciany= new BufferedImage[10];
+		wybuchy = new BufferedImage[3];
+		trafienia = new ArrayList<wybuch>();
 		wczytaj_tekstury();
 		wczytaj_level();
 	}
@@ -48,14 +52,16 @@ public class mapa  extends JPanel {
 		g.fillRect(208 , 0  ,32 ,208);
 
 
+		BufferedImage temp = ((gracz) jeden).rysuj();
+		g.drawImage(temp,((gracz) jeden).pozX ,((gracz) jeden).pozY , null);
+		
 		for(int i=0 ; i<sektor.length ; i++) {
 			
 			g.drawImage(sciana_sektora[i], sektor[i].x, sektor[i].y,
 					sektor[i].width ,sektor[i].height,  null);
 		}
 		
-		BufferedImage temp = ((gracz) jeden).rysuj();
-		g.drawImage(temp,((gracz) jeden).pozX ,((gracz) jeden).pozY , null);
+		
 		
 		
 		if(jeden.at !=null) {
@@ -65,10 +71,20 @@ public class mapa  extends JPanel {
 			trafienie(jeden.at.poz_X , jeden.at.poz_Y);
 		}
 		
+		for(wybuch w : trafienia) {
+			if(w.klatka==3) {
+				trafienia.remove(w);
+				w=null;
+				continue;
+			}
+			g.drawImage(wybuchy[w.klatka], w.poz_X, w.poz_Y, null);
+			w.klatka++;
+		}
+		
 	}
 	public void wczytaj_tekstury() {
 		
-		File sciezka = new File("images/icon.png");
+		File sciezka = new File("images/icon2.png");
 		try {
 		ikony  = ImageIO.read(sciezka);
 		}
@@ -79,13 +95,27 @@ public class mapa  extends JPanel {
 			e.printStackTrace();
 			
 		}
-		sciany[0]= ikony.getSubimage((16*19), 32, 16, 16); //orzel
-		sciany[1]=ikony.getSubimage((16*16), 0, 16, 16); //cegla
-		sciany[2]=ikony.getSubimage((16*17)+8, 0, 8, 16); //cegla_pion
-		sciany[3]=ikony.getSubimage((16*18), 8, 16, 8); //cegla_poziom
+		
+		sciany[0]=ikony.getSubimage((16*16), 0, 16, 16); //cegla
+		sciany[1]=ikony.getSubimage((16*17)+8, 0, 8, 16); //cegla_pion
+		sciany[2]=ikony.getSubimage((16*18), 8, 16, 8); //cegla_poziom
+		
+		sciany[3]=ikony.getSubimage((16*16), 16, 16, 16); //stal
+		sciany[4]=ikony.getSubimage((16*17)+8, 16, 8, 16); //stal_pion
+		sciany[5]=ikony.getSubimage((16*18), 24, 16, 8); //stal_poziom
+		
+
+		sciany[6]= ikony.getSubimage((16*19), 32, 16, 16); //orzel
+		sciany[7]= ikony.getSubimage((16*20), 32, 16, 16); //orzel_zniszczony
+		
+		sciany[8]= ikony.getSubimage((16*16), 32, 16, 16); //woda
+		sciany[9]= ikony.getSubimage((16*17), 32, 16, 16); //las
 		
 		
-		
+		wybuchy[0] = ikony.getSubimage(16*16, 16*8, 16, 16); //wybuch1
+		wybuchy[1] = ikony.getSubimage(16*17, 16*8, 16, 16); //wybuch2
+		wybuchy[2] = ikony.getSubimage(16*17, 16*8, 16, 16); //wybuch3
+		//wybuchy[2].getTransparency();
 		//pociski[0]=ikony.getSubimage((16*19), 32, 16, 16);
 		
 	}
@@ -104,7 +134,7 @@ public class mapa  extends JPanel {
 	            sc.close();
 	            sc=null;
 	            sektor = new Rectangle[count];
-	          //  sektor_id= new int[count];
+	            sektor_id= new int[count];
 	            sciana_sektora = new BufferedImage[count];
 
 	        } catch (FileNotFoundException e) {         
@@ -121,7 +151,7 @@ public class mapa  extends JPanel {
 	                String line = sc.nextLine();
 	                String[] dane = line.split(",");
 	                 //= details[0];
-	               // sektor_id[i]= Integer.valueOf(dane[0]);
+	                sektor_id[i]= Integer.valueOf(dane[0]);
 	                sciana_sektora[i] = sciany[Integer.valueOf(dane[0])];
 	                sektor[i] = new Rectangle(Integer.valueOf(dane[1]),Integer.valueOf(dane[2]),Integer.valueOf(dane[3]), Integer.valueOf(dane[4]));
 	                		i++;
@@ -139,7 +169,7 @@ public class mapa  extends JPanel {
 		
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<16 ; j++) {
-				if(sektor[i].contains((jeden.pozX)-2, (jeden.pozY+j))) return false;
+				if(sektor[i].contains((jeden.pozX)-1, (jeden.pozY+j))&& sektor_id[i]!=9) return false;
 				
 			}
 		}
@@ -150,7 +180,7 @@ public class mapa  extends JPanel {
 		
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<16 ; j++) {
-				if(sektor[i].contains((jeden.pozX+j), (jeden.pozY)-2)) return false;
+				if(sektor[i].contains((jeden.pozX+j), (jeden.pozY)-1) && sektor_id[i]!=9) return false;
 				
 			}
 		}
@@ -161,7 +191,7 @@ public class mapa  extends JPanel {
 			
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<16 ; j++) {
-					if(sektor[i].contains((jeden.pozX)+2+16, (jeden.pozY+j))) return false;
+					if(sektor[i].contains((jeden.pozX)+1+16, (jeden.pozY+j))&& sektor_id[i]!=9) return false;
 					
 				}
 			}
@@ -172,7 +202,7 @@ public class mapa  extends JPanel {
 			
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<16 ; j++) {
-					if(sektor[i].contains((jeden.pozX+j), (jeden.pozY)+2+16)) return false;
+					if(sektor[i].contains((jeden.pozX+j), (jeden.pozY)+1+16)&& sektor_id[i]!=9) return false;
 					
 				}
 		}
@@ -185,16 +215,23 @@ public class mapa  extends JPanel {
 		public void trafienie(int x , int y) {
 			if(x >= 208 || x<=0) {
 				jeden.at=null;
+				wybuch temp= new wybuch(x ,y);
+				trafienia.add(temp);
 				return;
 			}
 			else if (y>=208 || y<=0) {
 				jeden.at=null;
+				wybuch temp= new wybuch(x ,y);
+				trafienia.add(temp);
 				return;
 			}
 			
 			for(int i=0 ; i<sektor.length ;i++) {
-					if(sektor[i].contains(x ,y)) {
-							wyburz(i);
+					if(sektor[i].contains(x ,y) && sektor_id[i]<8) {
+							wybuch temp= new wybuch(x ,y);
+							trafienia.add(temp);
+							if(sektor_id[i]<3)wyburz(i);
+							else jeden.at=null;
 							}
 									
 								

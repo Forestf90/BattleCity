@@ -91,8 +91,6 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 				
 				break;
 		}
-
-			
 		level.repaint();
 		
 	}
