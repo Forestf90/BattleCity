@@ -2,6 +2,8 @@ package Battlecity;
 
 import java.awt.*;
 import java.io.IOException;
+
+
 import javax.swing.JFrame;
 import javax.swing.JPanel;
 import javax.swing.Timer;
@@ -24,6 +26,8 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 	
 	public JPanel level = new mapa();
 	Timer timer=new Timer(20, this);
+	
+	
 	public plansza() {
 		super("Battle City");
 		
@@ -50,6 +54,8 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 	}
 	
 	public void keyPressed(KeyEvent evt) {
+
+		
 		int c=evt.getKeyCode();
 		switch(c){
 			case KeyEvent.VK_RIGHT:
@@ -91,8 +97,9 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 				
 				break;
 		}
+	
 		level.repaint();
-		
+	
 	}
 	
 	public void keyTyped(KeyEvent evt) {

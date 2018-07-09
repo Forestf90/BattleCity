@@ -24,12 +24,14 @@ public class mapa  extends JPanel {
 	
 	BufferedImage[] sciany;
 	BufferedImage[] wybuchy;
+	BufferedImage[] eksplozje;
 	BufferedImage ikony;
 	public BufferedImage[] sciana_sektora;
 	//BufferedImage[] pociski;
 	//Rectangle pocisk;
 	//ArrayList<Rectangle> wyburzony = new ArrayList<Rectangle>();
 	ArrayList<wybuch> trafienia;
+	ArrayList<zniszczenie> rip;
 	
 	
 	public mapa() {
@@ -38,7 +40,9 @@ public class mapa  extends JPanel {
 		//pociski= new BufferedImage[4];
 		sciany= new BufferedImage[10];
 		wybuchy = new BufferedImage[3];
+		eksplozje = new BufferedImage[2];
 		trafienia = new ArrayList<wybuch>();
+		rip = new ArrayList<zniszczenie>();
 		wczytaj_tekstury();
 		wczytaj_level();
 	}
@@ -80,6 +84,16 @@ public class mapa  extends JPanel {
 			g.drawImage(wybuchy[w.klatka], w.poz_X, w.poz_Y, null);
 			w.klatka++;
 		}
+			
+			for(zniszczenie z : rip) {
+				if(z.klatka==2) {
+					rip.remove(z);
+					z=null;
+					continue;
+				}
+				g.drawImage(eksplozje[z.klatka], z.poz_X, z.poz_Y, null);
+				z.klatka++;
+		}
 		
 	}
 	public void wczytaj_tekstury() {
@@ -115,6 +129,11 @@ public class mapa  extends JPanel {
 		wybuchy[0] = ikony.getSubimage(16*16, 16*8, 16, 16); //wybuch1
 		wybuchy[1] = ikony.getSubimage(16*17, 16*8, 16, 16); //wybuch2
 		wybuchy[2] = ikony.getSubimage(16*17, 16*8, 16, 16); //wybuch3
+		
+		eksplozje[0] = ikony.getSubimage(16*19, 8*16, 32, 32);
+		eksplozje[1] = ikony.getSubimage(16*21, 8*16, 32, 32);
+		
+		
 		//wybuchy[2].getTransparency();
 		//pociski[0]=ikony.getSubimage((16*19), 32, 16, 16);
 		
@@ -226,16 +245,17 @@ public class mapa  extends JPanel {
 				return;
 			}
 			
-			for(int i=0 ; i<sektor.length ;i++) {
+				for(int i=0 ; i<sektor.length ;i++) {
 					if(sektor[i].contains(x ,y) && sektor_id[i]<8) {
-							wybuch temp= new wybuch(x ,y);
-							trafienia.add(temp);
-							if(sektor_id[i]<3)wyburz(i);
-							else jeden.at=null;
-							}
+						wybuch temp= new wybuch(x ,y);
+						trafienia.add(temp);
+						if(sektor_id[i]<3)wyburz(i);
+						else if(sektor_id[i]==6)przegrana(i);
+						else jeden.at=null;
+					}
 									
 								
-							}
+				}
 					
 				
 			}
@@ -270,6 +290,13 @@ public class mapa  extends JPanel {
 			
 		}
 		
+		public void przegrana( int k) {
+			jeden.at=null;
+			sektor_id[k]=7;
+			sciana_sektora[k] = sciany[7];
+			zniszczenie temp = new zniszczenie(sektor[k].x , sektor[k].y);
+			rip.add(temp);
+		}
 		
 		public void wytnij(int i ,int x ,int y ) {
 			BufferedImage temp =sciana_sektora[i].getSubimage(x , y ,sektor[i].width,sektor[i].height);
