@@ -15,23 +15,29 @@ import Battlecity.gracz;
 
 import java.util.Scanner;
 import java.util.ArrayList;
+import java.util.Random;
 
 public class mapa  extends JPanel {
 	
 	public gracz jeden;
 	public Rectangle[] sektor;
 	public int[] sektor_id;
+	public int licznik;
+	public int[] respy;
 	
 	BufferedImage[] sciany;
 	BufferedImage[] wybuchy;
 	BufferedImage[] eksplozje;
 	BufferedImage ikony;
 	public BufferedImage[] sciana_sektora;
+	BufferedImage ikona_wroga;
 	//BufferedImage[] pociski;
 	//Rectangle pocisk;
 	//ArrayList<Rectangle> wyburzony = new ArrayList<Rectangle>();
 	ArrayList<wybuch> trafienia;
 	ArrayList<zniszczenie> rip;
+	ArrayList<Rectangle> sektor_wroga;
+	ArrayList<wrog> przeciwnicy;
 	
 	
 	public mapa() {
@@ -43,6 +49,11 @@ public class mapa  extends JPanel {
 		eksplozje = new BufferedImage[2];
 		trafienia = new ArrayList<wybuch>();
 		rip = new ArrayList<zniszczenie>();
+		sektor_wroga = new ArrayList<Rectangle>();
+		przeciwnicy = new ArrayList<wrog>();
+		licznik=20;
+		respy = new int[] {0 ,96 ,192};
+		
 		wczytaj_tekstury();
 		wczytaj_level();
 	}
@@ -54,10 +65,19 @@ public class mapa  extends JPanel {
 		g.fillRect(0 , 0  ,208 ,208);
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(208 , 0  ,32 ,208);
-
-
+		int k=0;
+		for(int i=0 ;i<licznik ;i++) {
+			g.drawImage(ikona_wroga, 216+(i%2)*8,16+(k*8), null);
+			k+= i%2;
+		}
+		;
 		BufferedImage temp = ((gracz) jeden).rysuj();
 		g.drawImage(temp,((gracz) jeden).pozX ,((gracz) jeden).pozY , null);
+		
+		for(wrog w: przeciwnicy) {
+			BufferedImage temp2 = ((wrog)w).rysuj();
+			g.drawImage(temp2, w.poz_X,w.poz_Y, null);
+		}
 		
 		for(int i=0 ; i<sektor.length ; i++) {
 			
@@ -109,6 +129,8 @@ public class mapa  extends JPanel {
 			e.printStackTrace();
 			
 		}
+		
+		ikona_wroga = ikony.getSubimage(20*16, 16*12, 8, 8);
 		
 		sciany[0]=ikony.getSubimage((16*16), 0, 16, 16); //cegla
 		sciany[1]=ikony.getSubimage((16*17)+8, 0, 8, 16); //cegla_pion
@@ -244,6 +266,22 @@ public class mapa  extends JPanel {
 				trafienia.add(temp);
 				return;
 			}
+			int index=0;
+			for(Rectangle r: sektor_wroga){
+				
+					if(r.contains(x, y)) {
+						wybuch temp = new wybuch(x,y);
+						trafienia.add(temp);
+						zniszczenie temp2 = new zniszczenie(r.x , r.y);
+						rip.add(temp2);
+						jeden.at=null;
+						sektor_wroga.remove(index);
+						przeciwnicy.remove(index);
+						zwyciestwo();
+					}
+				
+				index++;
+			}
 			
 				for(int i=0 ; i<sektor.length ;i++) {
 					if(sektor[i].contains(x ,y) && sektor_id[i]<8) {
@@ -290,12 +328,31 @@ public class mapa  extends JPanel {
 			
 		}
 		
+		public void spawn() {
+			if(przeciwnicy.size() <4 &&licznik>0)
+			{
+				Random rand= new Random();
+				int los = rand.nextInt(3);
+				wrog temp = new wrog(respy[los]);
+				Rectangle temp2 = new Rectangle(respy[los] ,0 , 16 ,16);
+				sektor_wroga.add(temp2);
+				przeciwnicy.add(temp);
+				licznik--;
+			}
+		}
+		
+		
 		public void przegrana( int k) {
 			jeden.at=null;
 			sektor_id[k]=7;
 			sciana_sektora[k] = sciany[7];
 			zniszczenie temp = new zniszczenie(sektor[k].x , sektor[k].y);
 			rip.add(temp);
+		}
+		public void zwyciestwo() {
+			if(licznik==0) {
+				//przegrana(0);
+			}
 		}
 		
 		public void wytnij(int i ,int x ,int y ) {

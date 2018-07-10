@@ -26,6 +26,8 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 	
 	public JPanel level = new mapa();
 	Timer timer=new Timer(20, this);
+	Timer resp = new Timer(2000, this);
+	
 	
 	
 	public plansza() {
@@ -41,6 +43,7 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 		pack();
 		setVisible(true);
 		timer.start();
+		resp.start();
 		//this.setResizable(false);
 		
 	}
@@ -111,7 +114,9 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 		if(ev.getSource()==timer){
 		      repaint();
 		    }
-		
+		if(ev.getSource()==resp) {
+			((mapa) level).spawn();
+		}
 	}
 	
 }
