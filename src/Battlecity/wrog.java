@@ -13,6 +13,7 @@ public class wrog {
  BufferedImage ikony;
  public int strona;
  public int klatka;
+ public int przeladowanie;
  strzal at;
 	
 	public wrog(int x){
@@ -35,8 +36,9 @@ public class wrog {
 	
 	public void wytnij(BufferedImage x) {
 		
-		strona =0;
+		strona =2;
 		klatka=0;
+		przeladowanie=0;
 		kierunki = new BufferedImage[4][2];
 		for(int i=0 ; i<kierunki.length ; i++){
 			

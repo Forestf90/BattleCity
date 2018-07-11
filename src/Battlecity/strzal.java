@@ -9,8 +9,9 @@ public class strzal {
 	public int poz_Y;
 	public int zmiana_X;
 	public int zmiana_Y;
+	public boolean gracza;
 	
-	public strzal(int x ,int  y ,int k) {
+	public strzal(int x ,int  y ,int k , boolean moj) {
 		kierunek =k;
 		switch (kierunek) {
 		case 0: //gora
@@ -38,6 +39,7 @@ public class strzal {
 			zmiana_Y=0;
 			break;
 		}
+		gracza = moj;
 	}
 	
 	public void lot() {

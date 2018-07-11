@@ -3,6 +3,7 @@ package Battlecity;
 import java.awt.*;
 import java.awt.Graphics;
 import java.awt.Graphics2D;
+import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.FileNotFoundException;
@@ -24,6 +25,7 @@ public class mapa  extends JPanel {
 	public int[] sektor_id;
 	public int licznik;
 	public int[] respy;
+	public Rectangle poz_gracza;
 	
 	BufferedImage[] sciany;
 	BufferedImage[] wybuchy;
@@ -38,10 +40,12 @@ public class mapa  extends JPanel {
 	ArrayList<zniszczenie> rip;
 	ArrayList<Rectangle> sektor_wroga;
 	ArrayList<wrog> przeciwnicy;
+	ArrayList<strzal> ogien; 
 	
 	
 	public mapa() {
 		jeden = new gracz();
+		poz_gracza = new Rectangle(jeden.pozX , jeden.pozY, 16 ,16);
 		setPreferredSize(new Dimension( 240, 208 ));
 		//pociski= new BufferedImage[4];
 		sciany= new BufferedImage[10];
@@ -51,6 +55,7 @@ public class mapa  extends JPanel {
 		rip = new ArrayList<zniszczenie>();
 		sektor_wroga = new ArrayList<Rectangle>();
 		przeciwnicy = new ArrayList<wrog>();
+		ogien = new ArrayList<strzal>();
 		licznik=20;
 		respy = new int[] {0 ,96 ,192};
 		
@@ -75,6 +80,8 @@ public class mapa  extends JPanel {
 		g.drawImage(temp,((gracz) jeden).pozX ,((gracz) jeden).pozY , null);
 		
 		for(wrog w: przeciwnicy) {
+			int cos =przeciwnicy.indexOf(w);
+			sterowanie_ai(cos);
 			BufferedImage temp2 = ((wrog)w).rysuj();
 			g.drawImage(temp2, w.poz_X,w.poz_Y, null);
 		}
@@ -87,13 +94,15 @@ public class mapa  extends JPanel {
 		
 		
 		
-		
-		if(jeden.at !=null) {
+		for(strzal at :ogien) {
+			
 			g.setColor(Color.GRAY);
-			g.fillRect(jeden.at.poz_X, jeden.at.poz_Y, 2,2);
-			jeden.at.lot();
-			trafienie(jeden.at.poz_X , jeden.at.poz_Y);
+			g.fillRect(at.poz_X, at.poz_Y, 2,2);
+			at.lot();
+			trafienie(at);
+			
 		}
+		
 		
 		for(wybuch w : trafienia) {
 			if(w.klatka==3) {
@@ -206,44 +215,44 @@ public class mapa  extends JPanel {
 	       
 	}
 	
-	public boolean przejazd_lewo() {
+	public boolean przejazd_lewo(int x , int y) {
 		
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<16 ; j++) {
-				if(sektor[i].contains((jeden.pozX)-1, (jeden.pozY+j))&& sektor_id[i]!=9) return false;
+				if(sektor[i].contains(x-1, y+j)&& sektor_id[i]!=9) return false;
 				
 			}
 		}
 		return true;
 	}
 	
-	public boolean przejazd_gora() {
+	public boolean przejazd_gora(int x , int y) {
 		
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<16 ; j++) {
-				if(sektor[i].contains((jeden.pozX+j), (jeden.pozY)-1) && sektor_id[i]!=9) return false;
+				if(sektor[i].contains(x+j, y-1) && sektor_id[i]!=9) return false;
 				
 			}
 		}
 		return true;
 	}
 		
-		public boolean przejazd_prawo() {
+		public boolean przejazd_prawo(int x, int y) {
 			
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<16 ; j++) {
-					if(sektor[i].contains((jeden.pozX)+1+16, (jeden.pozY+j))&& sektor_id[i]!=9) return false;
+					if(sektor[i].contains(x+1+16, y+j)&& sektor_id[i]!=9) return false;
 					
 				}
 			}
 			return true;
 		}
 		
-		public boolean przejazd_dol() {
+		public boolean przejazd_dol(int x , int y) {
 			
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<16 ; j++) {
-					if(sektor[i].contains((jeden.pozX+j), (jeden.pozY)+1+16)&& sektor_id[i]!=9) return false;
+					if(sektor[i].contains(x+j, y+1+16)&& sektor_id[i]!=9) return false;
 					
 				}
 		}
@@ -253,43 +262,64 @@ public class mapa  extends JPanel {
 	}
 		
 		
-		public void trafienie(int x , int y) {
+		public void trafienie(strzal at) {
+			int x= at.poz_X;
+			int y= at.poz_Y;
 			if(x >= 208 || x<=0) {
-				jeden.at=null;
+				czysc_strzal(at);
 				wybuch temp= new wybuch(x ,y);
 				trafienia.add(temp);
 				return;
 			}
 			else if (y>=208 || y<=0) {
-				jeden.at=null;
+				czysc_strzal(at);
 				wybuch temp= new wybuch(x ,y);
 				trafienia.add(temp);
 				return;
 			}
-			int index=0;
-			for(Rectangle r: sektor_wroga){
-				
+			
+			if(at.gracza) {
+				int index=0;
+				for(Rectangle r: sektor_wroga){
+					
 					if(r.contains(x, y)) {
 						wybuch temp = new wybuch(x,y);
 						trafienia.add(temp);
 						zniszczenie temp2 = new zniszczenie(r.x , r.y);
 						rip.add(temp2);
-						jeden.at=null;
+						czysc_strzal(at);
+						if(przeciwnicy.get(index).at!=null)czysc_strzal(przeciwnicy.get(index).at);
 						sektor_wroga.remove(index);
 						przeciwnicy.remove(index);
 						zwyciestwo();
 					}
 				
-				index++;
+					index++;
+				}
+				
 			}
+			else {
+				if(poz_gracza.contains(x ,y)) {
+					wybuch temp = new wybuch(x,y);
+					trafienia.add(temp);
+					zniszczenie temp2 = new zniszczenie(poz_gracza.x , poz_gracza.y);
+					rip.add(temp2);
+					//jeden=null;
+					czysc_strzal(at);
+					//przegrana(1, at);
+				}
+			}
+
 			
 				for(int i=0 ; i<sektor.length ;i++) {
 					if(sektor[i].contains(x ,y) && sektor_id[i]<8) {
 						wybuch temp= new wybuch(x ,y);
 						trafienia.add(temp);
-						if(sektor_id[i]<3)wyburz(i);
-						else if(sektor_id[i]==6)przegrana(i);
-						else jeden.at=null;
+						if(sektor_id[i]<3)wyburz(i, at);
+						else if(sektor_id[i]==6)przegrana(i , at);
+						else czysc_strzal(at);
+							
+						
 					}
 									
 								
@@ -300,9 +330,9 @@ public class mapa  extends JPanel {
 
 		
 		
-		public void wyburz(int x) {
+		public void wyburz(int x , strzal at) {
 			int z=0 , y=0 ;
-			switch(jeden.at.kierunek) {
+			switch(at.kierunek) {
 			case 0: //gora
 				//sektor[x].y +=4;
 				sektor[x].height -=4;
@@ -322,7 +352,7 @@ public class mapa  extends JPanel {
 				z=4;
 				break;
 			}
-			jeden.at =null;
+			czysc_strzal(at);
 			wytnij(x ,z ,y);
 			
 			
@@ -341,9 +371,82 @@ public class mapa  extends JPanel {
 			}
 		}
 		
+		public void sterowanie_ai(int inde) {
+			wrog l= przeciwnicy.get(inde);
+			Rectangle r= sektor_wroga.get(inde);
+			int x=l.poz_X;
+			int y=l.poz_Y;
+			l.przeladowanie++;
+			Random rand = new Random();
+			if(l.at==null && l.przeladowanie==100) {
+				l.at= new strzal(x, y, l.strona , false);
+				ogien.add(l.at);
+				l.przeladowanie=0;
+			}
+			
+			
+			switch(l.strona){
+			case 3:
+				
+				l.klatka=l.klatka^1;
+				if(l.poz_X <192 &&przejazd_prawo(x,y)) {
+					l.poz_X+=1;
+					r.x+=1;
+					return;
+				}
+				break;
+			case 0:
+				l.klatka=l.klatka^1;
+				if(l.poz_Y >0 && przejazd_gora(x,y)) {
+					l.poz_Y-=1;
+					r.y-=1;
+					return;
+					
+				}
+				break;
+			case 1:
+				l.klatka=l.klatka^1;
+				if(l.poz_X >0 && przejazd_lewo(x,y)) {
+					l.poz_X-=1;
+					r.x-=1;
+					return;
+					
+				}
+				break;
+			case 2:
+				l.klatka=l.klatka^1;
+				if(l.poz_Y <192 && przejazd_dol(x,y)) {
+					l.poz_Y+=1;
+					r.y+=1;
+					return;
+					
+				}
+				break;
+
+				}
+			
+			int los = rand.nextInt(4);
+			l.strona =los;
+		}
+		public void czysc_strzal(strzal at) {
+			
+			if(at==jeden.at) {
+				jeden.at=null;
+				ogien.remove(at);
+				return;
+			}
+			for(wrog w:przeciwnicy) {
+				if(at==w.at) {
+					w.at=null;
+					ogien.remove(at);
+					return;
+				}
+			}
+		}
 		
-		public void przegrana( int k) {
-			jeden.at=null;
+		public void przegrana( int k, strzal at) {
+			ogien.remove(at);
+			at=null;
 			sektor_id[k]=7;
 			sciana_sektora[k] = sciany[7];
 			zniszczenie temp = new zniszczenie(sektor[k].x , sektor[k].y);
