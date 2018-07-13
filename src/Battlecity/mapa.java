@@ -1,15 +1,17 @@
 package Battlecity;
 
 import java.awt.*;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
 import java.awt.event.KeyEvent;
 import java.awt.image.BufferedImage;
+import java.io.BufferedInputStream;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.io.InputStream;
 
 import javax.imageio.ImageIO;
+import javax.swing.JFrame;
 import javax.swing.JPanel;
 
 import Battlecity.gracz;
@@ -26,6 +28,9 @@ public class mapa  extends JPanel {
 	public int licznik;
 	public int[] respy;
 	public Rectangle poz_gracza;
+	public boolean przegrana;
+	public int zniszczenia;
+	public Font font;
 	
 	BufferedImage[] sciany;
 	BufferedImage[] wybuchy;
@@ -33,6 +38,7 @@ public class mapa  extends JPanel {
 	BufferedImage ikony;
 	public BufferedImage[] sciana_sektora;
 	BufferedImage ikona_wroga;
+	//podsumowanie finito;
 	//BufferedImage[] pociski;
 	//Rectangle pocisk;
 	//ArrayList<Rectangle> wyburzony = new ArrayList<Rectangle>();
@@ -57,10 +63,12 @@ public class mapa  extends JPanel {
 		przeciwnicy = new ArrayList<wrog>();
 		ogien = new ArrayList<strzal>();
 		licznik=20;
+		zniszczenia=0;
 		respy = new int[] {0 ,96 ,192};
-		
+		przegrana = false;
 		wczytaj_tekstury();
 		wczytaj_level();
+		
 	}
 	
 	public void paint(Graphics g) {
@@ -70,14 +78,21 @@ public class mapa  extends JPanel {
 		g.fillRect(0 , 0  ,208 ,208);
 		g.setColor(Color.LIGHT_GRAY);
 		g.fillRect(208 , 0  ,32 ,208);
+		g.setColor(Color.BLACK);
+		g.setFont(font);
+		g.drawString("PUNKTY:", 208, 128);
+		g.drawString(String.valueOf(zniszczenia), 224, 144);
+		
 		int k=0;
 		for(int i=0 ;i<licznik ;i++) {
 			g.drawImage(ikona_wroga, 216+(i%2)*8,16+(k*8), null);
 			k+= i%2;
 		}
-		;
-		BufferedImage temp = ((gracz) jeden).rysuj();
-		g.drawImage(temp,((gracz) jeden).pozX ,((gracz) jeden).pozY , null);
+		if(jeden!=null) {
+			BufferedImage temp = ((gracz) jeden).rysuj();
+			g.drawImage(temp,((gracz) jeden).pozX ,((gracz) jeden).pozY , null);	
+		}
+
 		
 		for(wrog w: przeciwnicy) {
 			int cos =przeciwnicy.indexOf(w);
@@ -138,6 +153,23 @@ public class mapa  extends JPanel {
 			e.printStackTrace();
 			
 		}
+		
+		 
+			    
+			    
+			    try {
+			    	InputStream is = new BufferedInputStream(new FileInputStream("font/prstartk.ttf"));
+					font = Font.createFont(Font.TRUETYPE_FONT, is);
+					font =font.deriveFont(6f);
+				} catch (FontFormatException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+
+			  
 		
 		ikona_wroga = ikony.getSubimage(20*16, 16*12, 8, 8);
 		
@@ -291,6 +323,7 @@ public class mapa  extends JPanel {
 						if(przeciwnicy.get(index).at!=null)czysc_strzal(przeciwnicy.get(index).at);
 						sektor_wroga.remove(index);
 						przeciwnicy.remove(index);
+						zniszczenia++;
 						zwyciestwo();
 					}
 				
@@ -451,10 +484,21 @@ public class mapa  extends JPanel {
 			sciana_sektora[k] = sciany[7];
 			zniszczenie temp = new zniszczenie(sektor[k].x , sektor[k].y);
 			rip.add(temp);
+			//przegrana=true;
+			jeden=null;
+			
+			//finito = new podsumowanie(false , jeden.kierunki[1][1]);
+			JFrame parent = (JFrame) this.getTopLevelAncestor();
+			//parent.remove(KeyListner this);
+			//parent.getContentPane().add(parent, finito );
+		   // parent.dispose();
 		}
 		public void zwyciestwo() {
 			if(licznik==0) {
-				//przegrana(0);
+				this.removeAll();
+				//add your elements
+				revalidate();
+				repaint();
 			}
 		}
 		
