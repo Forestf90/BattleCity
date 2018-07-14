@@ -12,6 +12,7 @@ import java.io.InputStream;
 
 import javax.imageio.ImageIO;
 import javax.swing.JFrame;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import Battlecity.gracz;
@@ -28,7 +29,7 @@ public class mapa  extends JPanel {
 	public int licznik;
 	public int[] respy;
 	public Rectangle poz_gracza;
-	public boolean przegrana;
+	public boolean victory;
 	public int zniszczenia;
 	public Font font;
 	
@@ -52,7 +53,8 @@ public class mapa  extends JPanel {
 	public mapa() {
 		jeden = new gracz();
 		poz_gracza = new Rectangle(jeden.pozX , jeden.pozY, 16 ,16);
-		setPreferredSize(new Dimension( 240, 208 ));
+		setPreferredSize(new Dimension( 230, 230 )); //240 , 208 |||-10 bo resize=false
+		setBackground(Color.LIGHT_GRAY);
 		//pociski= new BufferedImage[4];
 		sciany= new BufferedImage[10];
 		wybuchy = new BufferedImage[3];
@@ -65,7 +67,7 @@ public class mapa  extends JPanel {
 		licznik=20;
 		zniszczenia=0;
 		respy = new int[] {0 ,96 ,192};
-		przegrana = false;
+		//przegrana = false;
 		wczytaj_tekstury();
 		wczytaj_level();
 		
@@ -77,11 +79,12 @@ public class mapa  extends JPanel {
 		g.setColor(Color.BLACK);
 		g.fillRect(0 , 0  ,208 ,208);
 		g.setColor(Color.LIGHT_GRAY);
-		g.fillRect(208 , 0  ,32 ,208);
+		//g.fillRect(208 , 0  ,32 ,208);
+		
 		g.setColor(Color.BLACK);
 		g.setFont(font);
-		g.drawString("PUNKTY:", 208, 128);
-		g.drawString(String.valueOf(zniszczenia), 224, 144);
+		g.drawString("PUNKTY:", 5, 227);
+		g.drawString(String.valueOf(zniszczenia), 100, 227);
 		
 		int k=0;
 		for(int i=0 ;i<licznik ;i++) {
@@ -160,7 +163,7 @@ public class mapa  extends JPanel {
 			    try {
 			    	InputStream is = new BufferedInputStream(new FileInputStream("font/prstartk.ttf"));
 					font = Font.createFont(Font.TRUETYPE_FONT, is);
-					font =font.deriveFont(6f);
+					font =font.deriveFont(12f);
 				} catch (FontFormatException e) {
 					// TODO Auto-generated catch block
 					e.printStackTrace();
@@ -252,9 +255,15 @@ public class mapa  extends JPanel {
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<16 ; j++) {
 				if(sektor[i].contains(x-1, y+j)&& sektor_id[i]!=9) return false;
+				else if(poz_gracza.contains(x-1 ,y+j))return false;
 				
+				for(Rectangle r: sektor_wroga) {
+					if(r.contains(x-1,y+j)) return false;
+				}
 			}
 		}
+
+		
 		return true;
 	}
 	
@@ -263,9 +272,16 @@ public class mapa  extends JPanel {
 		for(int i=0 ; i<sektor.length ;i++) {
 			for(int j=0 ; j<16 ; j++) {
 				if(sektor[i].contains(x+j, y-1) && sektor_id[i]!=9) return false;
+				else if(poz_gracza.contains(x+j ,y-1))return false;
+				
+				for(Rectangle r: sektor_wroga) {
+					if(r.contains(x+j,y-1)) return false;
+				}
 				
 			}
 		}
+
+		
 		return true;
 	}
 		
@@ -274,9 +290,15 @@ public class mapa  extends JPanel {
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<16 ; j++) {
 					if(sektor[i].contains(x+1+16, y+j)&& sektor_id[i]!=9) return false;
+					else if(poz_gracza.contains(x+1+16 ,y+j))return false;
 					
+					for(Rectangle r: sektor_wroga) {
+						if(r.contains(x+1+16,y+j)) return false;
+					}
 				}
 			}
+	
+			
 			return true;
 		}
 		
@@ -285,9 +307,15 @@ public class mapa  extends JPanel {
 			for(int i=0 ; i<sektor.length ;i++) {
 				for(int j=0 ; j<16 ; j++) {
 					if(sektor[i].contains(x+j, y+1+16)&& sektor_id[i]!=9) return false;
+					else if(poz_gracza.contains(x+j ,y+1+16))return false;
 					
+					for(Rectangle r: sektor_wroga) {
+						if(r.contains(x+j,y+1+16)) return false;
+					}
 				}
-		}
+			}
+
+		
 
 		
 		return true;
@@ -331,15 +359,15 @@ public class mapa  extends JPanel {
 				}
 				
 			}
-			else {
+			else if(jeden!=null) {
 				if(poz_gracza.contains(x ,y)) {
 					wybuch temp = new wybuch(x,y);
 					trafienia.add(temp);
 					zniszczenie temp2 = new zniszczenie(poz_gracza.x , poz_gracza.y);
 					rip.add(temp2);
-					//jeden=null;
+					jeden=null;
 					czysc_strzal(at);
-					//przegrana(1, at);
+					przegrana();
 				}
 			}
 
@@ -349,7 +377,14 @@ public class mapa  extends JPanel {
 						wybuch temp= new wybuch(x ,y);
 						trafienia.add(temp);
 						if(sektor_id[i]<3)wyburz(i, at);
-						else if(sektor_id[i]==6)przegrana(i , at);
+						else if(sektor_id[i]==6) {
+							czysc_strzal(at);
+							sektor_id[i]=7;
+							sciana_sektora[i] = sciany[7];
+							zniszczenie temp2 = new zniszczenie(sektor[i].x , sektor[i].y);
+							rip.add(temp2);
+							przegrana();
+						}
 						else czysc_strzal(at);
 							
 						
@@ -463,7 +498,7 @@ public class mapa  extends JPanel {
 		}
 		public void czysc_strzal(strzal at) {
 			
-			if(at==jeden.at) {
+			if(jeden != null && at==jeden.at) {
 				jeden.at=null;
 				ogien.remove(at);
 				return;
@@ -477,28 +512,33 @@ public class mapa  extends JPanel {
 			}
 		}
 		
-		public void przegrana( int k, strzal at) {
-			ogien.remove(at);
-			at=null;
-			sektor_id[k]=7;
-			sciana_sektora[k] = sciany[7];
-			zniszczenie temp = new zniszczenie(sektor[k].x , sektor[k].y);
-			rip.add(temp);
-			//przegrana=true;
-			jeden=null;
+		public void przegrana() {
 			
-			//finito = new podsumowanie(false , jeden.kierunki[1][1]);
-			JFrame parent = (JFrame) this.getTopLevelAncestor();
-			//parent.remove(KeyListner this);
-			//parent.getContentPane().add(parent, finito );
-		   // parent.dispose();
+			
+			repaint();
+			
+			
+			int response = JOptionPane.showConfirmDialog(null, "Udalo Ci sie zniszczyc "+zniszczenia+" wrogow. Zaczac od poczatku ?", "Koniec gry",
+	                JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+		    if (response == JOptionPane.NO_OPTION) {
+		            System.exit(0);
+		    } 
+		        else if (response == JOptionPane.YES_OPTION) {
+		        	zniszczenia=0;
+		        	victory=true;
+		        	
+
+		    } 
+		        else if (response == JOptionPane.CLOSED_OPTION) {
+		            System.exit(0);
+		    }
+			
+
 		}
+		
 		public void zwyciestwo() {
-			if(licznik==0) {
-				this.removeAll();
-				//add your elements
-				revalidate();
-				repaint();
+			if(licznik==0 && przeciwnicy.size()==0) {
+				victory=true;
 			}
 		}
 		

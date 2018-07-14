@@ -25,7 +25,6 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 
 	
 	public JPanel level = new mapa();
-	public JPanel finito=  new podsumowanie(((mapa) level).jeden.rysuj());
 	Timer timer=new Timer(20, this);
 	Timer resp = new Timer(2000, this);
 	
@@ -45,7 +44,7 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 		setVisible(true);
 		timer.start();
 		resp.start();
-		//this.setResizable(false);
+		this.setResizable(false);
 		
 	}
 	
@@ -126,17 +125,15 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 		if(ev.getSource()==resp) {
 			((mapa) level).spawn();
 		}
-		if(((mapa) level).przegrana) {
+		if(((mapa) level).victory) {
+			int temp = ((mapa)level).zniszczenia;
 			this.remove(level);
 			level = null;
 			level = new mapa();
+			((mapa) level).zniszczenia =temp;
 			this.add(level);
 			this.setVisible(true);
-			//this.add(finito);
-			//this.setVisible(true);
-			//this.removeKeyListener(this);
-			//this.setFocusable(false);
-			//this.addKeyListener((KeyListener) (finito));
+
 		}
 	}
 	
