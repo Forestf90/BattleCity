@@ -32,7 +32,7 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 	
 	public plansza() {
 		super("Battle City");
-		
+		((mapa) level).wczytaj_level();
 		
 		
 		add(level);
@@ -106,6 +106,12 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 				}	
 				
 				break;
+				
+			case KeyEvent.VK_Q:
+				((mapa) level).poziom++;
+				((mapa) level).victory=true;
+				
+				break;
 		}
 	
 		//level.repaint();
@@ -127,10 +133,13 @@ public class plansza extends JFrame implements KeyListener, ActionListener{
 		}
 		if(((mapa) level).victory) {
 			int temp = ((mapa)level).zniszczenia;
+			int temp2 = ((mapa)level).poziom;
 			this.remove(level);
 			level = null;
 			level = new mapa();
 			((mapa) level).zniszczenia =temp;
+			((mapa) level).poziom=temp2;
+			((mapa) level).wczytaj_level();
 			this.add(level);
 			this.setVisible(true);
 

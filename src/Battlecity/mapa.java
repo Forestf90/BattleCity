@@ -32,6 +32,7 @@ public class mapa  extends JPanel {
 	public boolean victory;
 	public int zniszczenia;
 	public Font font;
+	public int poziom;
 	
 	BufferedImage[] sciany;
 	BufferedImage[] wybuchy;
@@ -66,10 +67,11 @@ public class mapa  extends JPanel {
 		ogien = new ArrayList<strzal>();
 		licznik=20;
 		zniszczenia=0;
+		poziom=1;
 		respy = new int[] {0 ,96 ,192};
 		//przegrana = false;
 		wczytaj_tekstury();
-		wczytaj_level();
+		//wczytaj_level();
 		
 	}
 	
@@ -207,7 +209,8 @@ public class mapa  extends JPanel {
 	
 	public void wczytaj_level() {
 	       try {
-	            File f = new File("level1.txt");
+	    	   if(poziom==3)poziom=1;
+	            File f = new File("level"+poziom+".txt");
 	            
 				Scanner sc = new Scanner(f);
 	            
@@ -227,7 +230,7 @@ public class mapa  extends JPanel {
 	        }
 	       
 	       try {
-	            File f = new File("level1.txt");
+	            File f = new File("level"+poziom+".txt");
 	            
 				Scanner sc = new Scanner(f);
 
@@ -525,6 +528,7 @@ public class mapa  extends JPanel {
 		    } 
 		        else if (response == JOptionPane.YES_OPTION) {
 		        	zniszczenia=0;
+		        	poziom=1;
 		        	victory=true;
 		        	
 
@@ -538,6 +542,7 @@ public class mapa  extends JPanel {
 		
 		public void zwyciestwo() {
 			if(licznik==0 && przeciwnicy.size()==0) {
+				poziom+=1;
 				victory=true;
 			}
 		}
