@@ -18,7 +18,7 @@ public class wrog {
 	
 	public wrog(int x){
 		
-	File sciezka = new File("images/icon2.png");
+	File sciezka = new File("./resource/images/icon2.png");
 		try {
 		ikony  = ImageIO.read(sciezka);
 		}

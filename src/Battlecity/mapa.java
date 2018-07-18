@@ -54,7 +54,7 @@ public class mapa  extends JPanel {
 	public mapa() {
 		jeden = new gracz();
 		poz_gracza = new Rectangle(jeden.pozX , jeden.pozY, 16 ,16);
-		setPreferredSize(new Dimension( 230, 230 )); //240 , 208 |||-10 bo resize=false
+		setPreferredSize(new Dimension( 240, 240 )); //240 , 208 |||-10 bo resize=false
 		setBackground(Color.LIGHT_GRAY);
 		//pociski= new BufferedImage[4];
 		sciany= new BufferedImage[10];
@@ -86,7 +86,7 @@ public class mapa  extends JPanel {
 		g.setColor(Color.BLACK);
 		g.setFont(font);
 		g.drawString("PUNKTY:", 5, 227);
-		g.drawString(String.valueOf(zniszczenia), 100, 227);
+		g.drawString(String.valueOf(zniszczenia), 120, 227);
 		
 		int k=0;
 		for(int i=0 ;i<licznik ;i++) {
@@ -147,7 +147,7 @@ public class mapa  extends JPanel {
 	}
 	public void wczytaj_tekstury() {
 		
-		File sciezka = new File("images/icon2.png");
+		File sciezka = new File("./resource/images/icon2.png");
 		try {
 		ikony  = ImageIO.read(sciezka);
 		}
@@ -163,7 +163,7 @@ public class mapa  extends JPanel {
 			    
 			    
 			    try {
-			    	InputStream is = new BufferedInputStream(new FileInputStream("font/prstartk.ttf"));
+			    	InputStream is = new BufferedInputStream(new FileInputStream("./resource/font/prstartk.ttf"));
 					font = Font.createFont(Font.TRUETYPE_FONT, is);
 					font =font.deriveFont(12f);
 				} catch (FontFormatException e) {
@@ -209,8 +209,8 @@ public class mapa  extends JPanel {
 	
 	public void wczytaj_level() {
 	       try {
-	    	   if(poziom==3)poziom=1;
-	            File f = new File("level"+poziom+".txt");
+	    	   if(poziom==4)poziom=1;
+	            File f = new File("./resource/level"+poziom+".txt");
 	            
 				Scanner sc = new Scanner(f);
 	            
@@ -230,7 +230,7 @@ public class mapa  extends JPanel {
 	        }
 	       
 	       try {
-	            File f = new File("level"+poziom+".txt");
+	            File f = new File("./resource/level"+poziom+".txt");
 	            
 				Scanner sc = new Scanner(f);
 
@@ -256,7 +256,7 @@ public class mapa  extends JPanel {
 	public boolean przejazd_lewo(int x , int y) {
 		
 		for(int i=0 ; i<sektor.length ;i++) {
-			for(int j=0 ; j<16 ; j++) {
+			for(int j=0 ; j<15 ; j++) {
 				if(sektor[i].contains(x-1, y+j)&& sektor_id[i]!=9) return false;
 				else if(poz_gracza.contains(x-1 ,y+j))return false;
 				
@@ -273,7 +273,7 @@ public class mapa  extends JPanel {
 	public boolean przejazd_gora(int x , int y) {
 		
 		for(int i=0 ; i<sektor.length ;i++) {
-			for(int j=0 ; j<16 ; j++) {
+			for(int j=0 ; j<15 ; j++) {
 				if(sektor[i].contains(x+j, y-1) && sektor_id[i]!=9) return false;
 				else if(poz_gracza.contains(x+j ,y-1))return false;
 				
@@ -291,7 +291,7 @@ public class mapa  extends JPanel {
 		public boolean przejazd_prawo(int x, int y) {
 			
 			for(int i=0 ; i<sektor.length ;i++) {
-				for(int j=0 ; j<16 ; j++) {
+				for(int j=0 ; j<15 ; j++) {
 					if(sektor[i].contains(x+1+16, y+j)&& sektor_id[i]!=9) return false;
 					else if(poz_gracza.contains(x+1+16 ,y+j))return false;
 					
@@ -308,7 +308,7 @@ public class mapa  extends JPanel {
 		public boolean przejazd_dol(int x , int y) {
 			
 			for(int i=0 ; i<sektor.length ;i++) {
-				for(int j=0 ; j<16 ; j++) {
+				for(int j=0 ; j<15 ; j++) {
 					if(sektor[i].contains(x+j, y+1+16)&& sektor_id[i]!=9) return false;
 					else if(poz_gracza.contains(x+j ,y+1+16))return false;
 					

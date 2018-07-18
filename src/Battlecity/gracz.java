@@ -23,7 +23,7 @@ public class gracz {
 	
 	public gracz(){
 		
-	File sciezka = new File("images/icon2.png");
+	File sciezka = new File("./resource/images/icon2.png");
 		try {
 		ikony  = ImageIO.read(sciezka);
 		}
